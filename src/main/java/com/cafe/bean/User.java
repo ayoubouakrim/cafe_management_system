@@ -1,29 +1,28 @@
 package com.cafe.bean;
 
+import com.cafe.bean.Role;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 @Data
 @Entity
-@Table(name = "user")
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
+public class User implements UserDetails {
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(name = "name")
-    private String name;
-    @Column(name = "contactNumber")
-    private String contactNumber;
-    @Column(name = "email")
+    private String username;
     private String email;
-    @Column(name = "password")
     private String password;
+    @ManyToMany
+    private Collection<Role> authorities;
+    private boolean accountNonExpired=true;
+    private boolean accountNonLocked=true;
+    private boolean credentialsNonExpired=true;
+    private boolean enabled=true;
+    private boolean status=false;
 
-    @Column(name = "status")
-    private String status;
 
-    @Column(name = "role")
-    private String role;
+
 
 }

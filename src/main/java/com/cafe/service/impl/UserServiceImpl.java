@@ -1,63 +1,74 @@
 package com.cafe.service.impl;
 
 import com.cafe.bean.User;
+import com.cafe.config.AuthenticationResponse;
 import com.cafe.dao.UserDao;
 import com.cafe.service.facade.UserService;
-import com.cafe.utils.CafeUtils;
-import lombok.extern.slf4j.Slf4j;
+import com.cafe.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-import java.util.Objects;
+import java.util.List;
 
-@Slf4j
+
 @Service
 public class UserServiceImpl implements UserService {
-    @Autowired
-    private UserDao userDao;
+
+
+    private final UserDao userDao;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    @Autowired @Lazy
+    private AuthenticationManager authenticationManager;
+
+    public UserServiceImpl(UserDao userDao, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+        this.userDao = userDao;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+
+    }
+
 
     @Override
-    public ResponseEntity<String> signUp(Map<String, String> requestMap) {
-        log.info("Inside signUp{}", requestMap);
-        try {
-            if (validateSignUpMap(requestMap)) {
-                User user = userDao.findByEmail(requestMap.get("email"));
-                if (Objects.isNull(user)) {
-                    userDao.save(getUserFromMap(requestMap));
-                    return CafeUtils.getResponseEntity("signup successful", HttpStatus.OK);
-                } else {
-                    return CafeUtils.getResponseEntity("user already exist", HttpStatus.BAD_REQUEST);
-                }
-            } else {
-
-                return CafeUtils.getResponseEntity("invalid data", HttpStatus.BAD_REQUEST);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-
-        }
-        return CafeUtils.getResponseEntity("something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
-
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userDao.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
-
-    private boolean validateSignUpMap(Map<String, String> requestMap) {
-        if (requestMap.containsKey("name") && requestMap.containsKey("contactNumber") && requestMap.containsKey("email") && requestMap.containsKey("password")) {
-            return true;
-        }
-        return false;
-    }
-
-    private User getUserFromMap(Map<String, String> requestMap) {
+    @Override
+    public AuthenticationResponse signup(User request){
         User user = new User();
-        user.setName(requestMap.get("name"));
-        user.setContactNumber(requestMap.get("contactNumber"));
-        user.setEmail(requestMap.get("email"));
-        user.setPassword(requestMap.get("password"));
-        user.setStatus("false");
-        user.setRole("user");
-        return user;
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setAuthorities(request.getAuthorities());
+        user = userDao.save(user);
+        String token = jwtUtil.generateToken(user);
+
+        return new AuthenticationResponse(token);
+
+    }
+    @Override
+
+    public AuthenticationResponse authenticate(User request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+        User user = userDao.findByEmail(request.getEmail()).orElseThrow();
+
+        String token = jwtUtil.generateToken(user);
+        return new AuthenticationResponse(token);
+    }
+
+    public ResponseEntity<List<User>> findAll() {
+        return (ResponseEntity<List<User>>) userDao.findAll();
     }
 }
