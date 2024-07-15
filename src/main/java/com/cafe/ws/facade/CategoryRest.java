@@ -2,7 +2,7 @@ package com.cafe.ws.facade;
 
 import com.cafe.bean.Category;
 import com.cafe.service.facade.CategoryService;
-import com.cafe.utils.CafeUtils;
+
 import com.cafe.ws.converter.CategoryConverter;
 import com.cafe.ws.dto.CategoryDto;
 import org.springframework.beans.factory.annotation.Autowired;

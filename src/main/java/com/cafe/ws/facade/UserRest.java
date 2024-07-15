@@ -3,16 +3,15 @@ package com.cafe.ws.facade;
 import com.cafe.bean.User;
 import com.cafe.config.AuthenticationResponse;
 import com.cafe.service.facade.UserService;
-import com.cafe.utils.CafeUtils;
-import com.cafe.ws.dto.UserDto;
-import org.springframework.beans.factory.annotation.Autowired;
+
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
 
 @RestController
 @RequestMapping(path="/user")
