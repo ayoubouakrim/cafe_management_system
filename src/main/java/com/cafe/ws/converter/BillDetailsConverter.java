@@ -3,13 +3,14 @@ package com.cafe.ws.converter;
 import com.cafe.bean.BillDetails;
 import com.cafe.ws.dto.BillDetailsDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 public class BillDetailsConverter {
-    @Autowired
+    @Autowired @Lazy
     private BillConverter billConverter;
     @Autowired
     private ProductConverter productConverter;
