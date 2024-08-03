@@ -2,8 +2,8 @@ package com.cafe.service.impl;
 
 import com.cafe.bean.Bill;
 import com.cafe.bean.BillDetails;
-import com.cafe.bean.Product;
 import com.cafe.dao.BillDao;
+import com.cafe.service.facade.BillDetailsService;
 import com.cafe.service.facade.BillService;
 
 import com.itextpdf.text.*;
@@ -21,18 +21,30 @@ import java.util.stream.Stream;
 public class BillServiceImpl implements BillService {
     @Autowired
     private BillDao billDao;
+    @Autowired
+    private BillDetailsService billDetailsService;
 
+
+    @Override
+    public List<Bill> findByCreatedBy(String username) {
+        return billDao.findByCreatedBy(username);
+    }
+
+    @Override
+    public List<Bill> findAll() {
+        return billDao.findAll();
+    }
 
     @Override
     public String generateReport(Bill bill) throws Exception {
         String fileName;
         if (validate(bill)) {
             if (bill.getUuid() != null) {
-                fileName = bill.getUuid();
+                fileName = "BILL-" + bill.getUuid();
             } else {
                 fileName = "BILL-" + System.currentTimeMillis();
                 bill.setUuid(fileName);
-                save(bill);
+                bill = save(bill);
 
             }
             String data = "Name: " + bill.getName() + "\n" +
@@ -122,10 +134,18 @@ public class BillServiceImpl implements BillService {
 
     }
 
-    private void save(Bill bill) {
+    public Bill save(Bill bill) {
         if (validate(bill)) {
-            billDao.save(bill);
+            Bill savedBill = billDao.save(bill);
+            if (bill.getProductDetails() != null) {
+                bill.getProductDetails().forEach(product -> {
+                    product.setBill(savedBill);
+                    billDetailsService.save(product);
+                });
+            }
+            return savedBill;
         }
+        return null;
 
     }
 

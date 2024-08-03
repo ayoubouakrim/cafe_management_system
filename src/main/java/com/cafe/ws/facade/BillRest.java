@@ -7,13 +7,12 @@ import com.cafe.ws.dto.BillDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/bill")
+@RequestMapping("/api/v1/user/bill")
 public class BillRest {
     @Autowired
     private BillService billService;
@@ -34,6 +33,32 @@ public class BillRest {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
 
+    }
+    @GetMapping("/getBills")
+    public ResponseEntity<List<BillDto>> getBills(String username) throws Exception {
+        ResponseEntity<List<BillDto>> res = null;
+        List<Bill> items = billService.findByCreatedBy(username);
+        if (items != null) {
+            List<BillDto> dtos = converter.toDto(items);
+            res = new ResponseEntity<>(dtos, HttpStatus.OK);
+        } else {
+            res = new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        }
+        return res;
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<BillDto>> findAll() throws Exception {
+        ResponseEntity<List<BillDto>> res = null;
+        List<Bill> items = billService.findAll();
+        List<BillDto> dtos = null;
+        HttpStatus status = HttpStatus.NO_CONTENT;
+        dtos = converter.toDto(items);
+        if (dtos != null && !dtos.isEmpty())
+            status = HttpStatus.OK;
+
+        res = new ResponseEntity<>(dtos, status);
+        return res;
     }
 
 }
