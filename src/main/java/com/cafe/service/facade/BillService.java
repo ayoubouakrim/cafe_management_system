@@ -10,4 +10,6 @@ public interface BillService {
     List<Bill> findAll();
 
     String generateReport(Bill dto) throws Exception;
+
+    byte[] getPdf(String uuid) throws Exception;
 }

@@ -18,22 +18,24 @@ public class BillRest {
     private BillService billService;
     @Autowired
     private BillConverter converter;
+
     @PostMapping("/generateReport")
-    ResponseEntity<String> generateReport(@RequestBody BillDto dto) throws Exception{
+    ResponseEntity<String> generateReport(@RequestBody BillDto dto) throws Exception {
         ResponseEntity<String> res = null;
-        if(dto!=null){
+        if (dto != null) {
             Bill myT = converter.toItem(dto);
             String report = billService.generateReport(myT);
             if (report == null) {
                 return new ResponseEntity<>(null, HttpStatus.IM_USED);
-            }else{
+            } else {
                 return new ResponseEntity<>(report, HttpStatus.CREATED);
             }
-        }else {
+        } else {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
 
     }
+
     @GetMapping("/getBills")
     public ResponseEntity<List<BillDto>> getBills(String username) throws Exception {
         ResponseEntity<List<BillDto>> res = null;
@@ -58,6 +60,23 @@ public class BillRest {
             status = HttpStatus.OK;
 
         res = new ResponseEntity<>(dtos, status);
+        return res;
+    }
+
+    @GetMapping("/getPdf/uuid/{uuid}")
+    public ResponseEntity<byte[]> getPdf(@PathVariable String uuid) throws Exception {
+        ResponseEntity<byte[]> res = null;
+        if (uuid != null) {
+            byte[] pdf = billService.getPdf(uuid);
+            if (pdf != null) {
+                res = new ResponseEntity<>(pdf, HttpStatus.OK);
+            } else {
+                res = new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+            }
+            return res;
+        }
+
+        res = new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         return res;
     }
 

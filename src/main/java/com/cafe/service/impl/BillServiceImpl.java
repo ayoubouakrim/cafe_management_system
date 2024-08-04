@@ -6,14 +6,20 @@ import com.cafe.dao.BillDao;
 import com.cafe.service.facade.BillDetailsService;
 import com.cafe.service.facade.BillService;
 
+
+import com.cafe.utils.CafeConstant;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import org.apache.pdfbox.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -52,7 +58,7 @@ public class BillServiceImpl implements BillService {
                     "Phone: " + bill.getPhone() + "\n" +
                     "Method: " + bill.getMethod();
             Document document = new Document();
-            final String store_location = "C:\\Users\\ADMIN\\Desktop\\ayoub\\popoCafe";
+            final String store_location = CafeConstant.STORAGE_LOCATION;
             PdfWriter.getInstance(document, new FileOutputStream(store_location + "\\" + fileName + ".pdf"));
 
             document.open();
@@ -152,5 +158,35 @@ public class BillServiceImpl implements BillService {
     private boolean validate(Bill bill) {
         return bill.getUuid() != null &&
                 bill.getName() != null;
+    }
+
+
+    @Override
+    public byte[] getPdf(String uuid) throws Exception {
+        byte[] byteArray = new byte[0];
+        if (uuid == null) {
+            return byteArray;
+        }
+        String pdfPath = CafeConstant.STORAGE_LOCATION + "\\" + "BILL-" + uuid + ".pdf";
+        if (isFileExist(pdfPath)) {
+            byteArray = getByteArray(pdfPath);
+            return byteArray;
+        }
+        return null;
+
+    }
+
+    private byte[] getByteArray(String pdfPath) throws Exception {
+        File initialFile = new File(pdfPath);
+        InputStream targetStream = new FileInputStream(initialFile);
+        byte[] byteArray = IOUtils.toByteArray(targetStream);
+        targetStream.close();
+        return byteArray;
+
+    }
+
+    private Boolean isFileExist(String path) {
+        File file = new File(path);
+        return (file != null && file.exists()) ? Boolean.TRUE : Boolean.FALSE;
     }
 }
