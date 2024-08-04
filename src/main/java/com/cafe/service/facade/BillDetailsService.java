@@ -4,4 +4,6 @@ import com.cafe.bean.BillDetails;
 
 public interface BillDetailsService {
     BillDetails save(BillDetails entity);
+
+    int deleteByBillUuid(String uuid);
 }

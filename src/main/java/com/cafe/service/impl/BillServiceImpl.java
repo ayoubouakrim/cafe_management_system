@@ -189,4 +189,12 @@ public class BillServiceImpl implements BillService {
         File file = new File(path);
         return (file != null && file.exists()) ? Boolean.TRUE : Boolean.FALSE;
     }
+
+    @Override
+    public int deleteByUuid(String uuid) {
+        int result1 = billDetailsService.deleteByBillUuid(uuid);
+        int result2 = billDao.deleteByUuid(uuid);
+        return result1 + result2;
+    }
+
 }

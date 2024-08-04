@@ -22,4 +22,8 @@ public class BillDetailsServiceImpl implements BillDetailsService {
 
         return billDetailsDao.save(entity);
     }
+    @Override
+    public int deleteByBillUuid(String uuid) {
+        return billDetailsDao.deleteByBillUuid(uuid);
+    }
 }

@@ -12,4 +12,6 @@ public interface BillService {
     String generateReport(Bill dto) throws Exception;
 
     byte[] getPdf(String uuid) throws Exception;
+
+    int deleteByUuid(String uuid);
 }

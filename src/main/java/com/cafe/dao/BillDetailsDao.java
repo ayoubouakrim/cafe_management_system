@@ -8,4 +8,6 @@ import java.util.List;
 @Repository
 public interface BillDetailsDao extends JpaRepository<BillDetails, Long> {
     List<BillDetails> findByBillName(String name);
+
+    int deleteByBillUuid(String uuid);
 }

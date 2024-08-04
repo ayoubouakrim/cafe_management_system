@@ -10,4 +10,6 @@ import java.util.List;
 public interface BillDao extends JpaRepository<Bill, Long> {
 
     List<Bill> findByCreatedBy(String createdBy);
+
+    int deleteByUuid(String uuid);
 }

@@ -79,5 +79,16 @@ public class BillRest {
         res = new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         return res;
     }
+    @DeleteMapping("/delete/uuid/{uuid}")
+    public ResponseEntity<String> delete(@PathVariable String uuid) throws Exception {
+        ResponseEntity<String> res = null;
+        if (uuid != null) {
+            billService.deleteByUuid(uuid);
+            res = new ResponseEntity<>(uuid +"is deleted", HttpStatus.OK);
+        } else {
+            res = new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        }
+        return res;
+    }
 
 }
